@@ -75,6 +75,13 @@ class SSEClient(object):
                     chunk = self.resp.raw.read(self.chunk_size)
                 if not chunk:
                     break
+
+                # use urllib3's decode if available
+                # this allows us to deal with alternative encodings like gzip
+                if hasattr(self.resp.raw, '_decode'):
+                    chunk = self.resp.raw._decode(chunk, decode_content=True,
+                                                  flush_decoder=True)
+
                 yield chunk
 
         return generate()
